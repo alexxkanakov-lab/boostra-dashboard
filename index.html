@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Boostra Marketing Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+.hdr{background:linear-gradient(135deg,#1e2433,#252d3f);padding:12px 24px;border-bottom:1px solid #2d3748;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.hdr-logo{font-size:20px;font-weight:700;color:#60a5fa}
+.hdr-title{font-size:13px;color:#94a3b8}
+.hdr-date{margin-left:auto;font-size:12px;color:#64748b}
+
+/* RUN RATE PANEL */
+.rr-panel{background:linear-gradient(135deg,#0a1220,#0d1829);border-bottom:2px solid #1e3a5f;padding:14px 24px}
+.rr-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.rr-title{font-size:13px;font-weight:700;color:#94a3b8;white-space:nowrap}
+.rr-plan-lbl{font-size:12px;color:#475569;white-space:nowrap}
+.rr-bar-wrap{flex:1;min-width:180px;background:#080f1c;border-radius:6px;height:24px;overflow:hidden;position:relative;border:1px solid #1e3a5f}
+.rr-bar-fact{height:100%;display:flex;align-items:center;padding-left:8px;transition:width .5s}
+.rr-bar-fact span{font-size:10px;font-weight:700;color:#fff;white-space:nowrap}
+.rr-bar-tgt{position:absolute;top:0;bottom:0;width:2px;background:#f59e0b}
+.rr-bar-tgt-lbl{position:absolute;top:-14px;font-size:8px;color:#f59e0b;white-space:nowrap;transform:translateX(-50%)}
+.rr-pct{font-size:14px;font-weight:800;white-space:nowrap;min-width:80px;text-align:right}
+.rr-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;margin-bottom:10px}
+.rr-card{background:#080f1c;border:1px solid #1e3a5f;border-radius:10px;padding:11px 14px}
+.rr-card.warn{border-color:#7f1d1d;background:#0c0502}
+.rr-card.ok{border-color:#064e3b;background:#020b07}
+.rr-card-lbl{font-size:9px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.rr-card-val{font-size:20px;font-weight:800;color:#f1f5f9;line-height:1.1}
+.rr-card-sub{font-size:10px;color:#64748b;margin-top:3px;line-height:1.4}
+.rr-card.warn .rr-card-val{color:#f87171}
+.rr-card.ok .rr-card-val{color:#4ade80}
+.rr-prods{display:flex;gap:8px;flex-wrap:wrap}
+.rr-prod{background:#080f1c;border:1px solid #1e3a5f;border-radius:8px;padding:8px 12px;flex:1;min-width:140px}
+.rr-prod-name{font-size:10px;font-weight:700;margin-bottom:3px}
+.rr-prod-fact{font-size:12px;font-weight:600;color:#e2e8f0}
+.rr-prod-proj{font-size:10px;color:#64748b;margin-top:1px}
+
+/* TOP 2-DAY TABLE */
+.d2d-panel{background:#1a1f2e;border-bottom:2px solid #2d3748;padding:14px 24px}
+.d2d-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.d2d-title{font-size:14px;font-weight:700;color:#f1f5f9}
+.d2d-dates{background:#1e2740;border:1px solid #334155;border-radius:10px;padding:2px 10px;font-size:12px;color:#94a3b8}
+.d2d-note{background:#0c1a2e;border:1px solid #1d4ed8;border-radius:8px;padding:2px 9px;font-size:11px;color:#60a5fa}
+.d2d-table-wrap{overflow-x:auto}
+.d2d-table{width:100%;border-collapse:collapse;font-size:12px}
+.d2d-table th{background:#0f1420;color:#64748b;padding:7px 12px;text-align:left;border-bottom:1px solid #2d3748;font-weight:600;white-space:nowrap}
+.d2d-table th.num{text-align:right}
+.d2d-table td{padding:6px 12px;border-bottom:1px solid #131e2e;white-space:nowrap}
+.d2d-table tr:hover td{background:#151f30}
+.d2d-table tr.row-sel td{background:#1a2f50!important;box-shadow:inset 3px 0 0 #3b82f6}
+.d2d-table tr.row-sel td.mc{color:#93c5fd!important;font-weight:700}
+.d2d-table tr.row-sel td.v1{color:#cbd5e1!important;font-weight:600}
+.d2d-table tr.row-sel td.v2{color:#fff!important;font-size:13px}
+.d2d-table tr.row-sel td.delta{font-size:13px}
+.d2d-table tr.row-sel td.seg{background:#0d1625!important;box-shadow:none}
+.d2d-table tbody tr:not(.seg-row){cursor:pointer}
+.d2d-table td.mc{color:#94a3b8;font-weight:600}
+.d2d-table td.seg{color:#64748b;font-size:11px;font-style:italic;background:#0d1625;padding:4px 12px}
+.d2d-table td.v1{text-align:right;color:#94a3b8}
+.d2d-table td.v2{text-align:right;color:#f1f5f9;font-weight:600}
+.d2d-table td.delta{text-align:right;font-weight:700}
+.up{color:#4ade80}.dn{color:#f87171}.neu{color:#64748b}
+.badge{font-size:9px;padding:1px 4px;border-radius:3px;margin-left:3px;font-weight:700}
+.badge.est{background:#0c1a2e;color:#60a5fa;border:1px solid #1d4ed8}
+
+.wrap{max-width:1440px;margin:0 auto;padding:16px 16px 40px}
+
+/* PERIOD COMPARATOR */
+.cmp-panel{background:#1a1f2e;border:1px solid #2d3748;border-radius:12px;padding:16px;margin-bottom:14px}
+.cmp-hdr{font-size:14px;font-weight:700;color:#94a3b8;margin-bottom:12px}
+.cmp-periods{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.cmp-period{flex:1;min-width:220px;background:#0f1420;border:1px solid #2d3748;border-radius:8px;padding:10px 12px}
+.cmp-period-label{font-size:11px;font-weight:700;margin-bottom:8px}
+.cmp-period.a .cmp-period-label{color:#60a5fa}.cmp-period.b .cmp-period-label{color:#f472b6}
+.cmp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cmp-row label{font-size:11px;color:#64748b}
+.cmp-row select{background:#1e2433;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer}
+.cmp-presets{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.preset-btn{background:#1e2433;color:#94a3b8;border:1px solid #334155;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
+.preset-btn:hover{background:#2d3748;color:#e2e8f0}
+.preset-btn.active{background:#1d4ed8;color:#fff;border-color:#3b82f6}
+.cmp-run{background:#1d4ed8;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer}
+.cmp-run:hover{background:#2563eb}
+#cmpResult{display:none;margin-top:12px}
+.cmp-table-wrap{overflow-x:auto}
+.cmp-table{width:100%;border-collapse:collapse;font-size:12px}
+.cmp-table th{background:#0f1420;color:#64748b;padding:8px 10px;text-align:left;border-bottom:1px solid #2d3748;font-weight:600;white-space:nowrap}
+.cmp-table td{padding:7px 10px;border-bottom:1px solid #1a2035;white-space:nowrap}
+.cmp-table tr:hover td{background:#1a2035}
+.cmp-table .mc{color:#94a3b8;font-weight:600}
+.val-a{color:#60a5fa}.val-b{color:#f472b6}
+.delta-up{color:#4ade80;font-weight:700}.delta-dn{color:#f87171;font-weight:700}.delta-neu{color:#94a3b8}
+
+/* SECTIONS */
+.section{background:#1a1f2e;border:1px solid #2d3748;border-radius:12px;padding:16px;margin-bottom:14px}
+.sec-title{font-size:14px;font-weight:700;color:#94a3b8;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dot-nk{background:#3b82f6}.dot-pk{background:#10b981}.dot-cr{background:#f59e0b}.dot-az{background:#a78bfa}
+.sections-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:900px){.sections-grid{grid-template-columns:1fr}}
+
+/* CHARTS */
+.chart-area{width:100%;height:200px}
+.chart-legend{font-size:11px;color:#64748b;margin-top:4px;text-align:right}
+.mat-section{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+@media(max-width:700px){.mat-section{grid-template-columns:1fr}}
+.mat-chart{background:#0f1420;border-radius:8px;padding:10px;border:1px solid #1e2d45}
+.mat-chart-title{font-size:11px;color:#64748b;margin-bottom:8px;font-weight:600}
+.mat-info{background:#080f1c;border:1px solid #1e3a5f;border-radius:8px;padding:9px 12px;margin-top:8px;font-size:11px}
+.mat-info-title{color:#60a5fa;font-weight:600;margin-bottom:4px;font-size:11px}
+.mat-info-row{display:flex;gap:6px;align-items:center;padding:3px 0;border-bottom:1px solid #0d1a2b;flex-wrap:wrap}
+.mat-date{color:#64748b;min-width:36px;font-weight:600}
+.mat-age{color:#334155;min-width:40px;font-size:10px}
+.mat-raw{color:#94a3b8}.mat-arrow{color:#334155;padding:0 2px}
+.mat-exp{font-weight:700}
+.mat-pct{font-size:9px;padding:1px 4px;border-radius:3px;margin-left:4px}
+
+/* CHANNEL CARDS */
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:10px}
+.ch-card{background:#0f1420;border-radius:8px;padding:8px 10px;border:1px solid #1e2d45}
+.ch-card-name{font-size:10px;color:#64748b;margin-bottom:3px}
+.ch-card-val{font-size:14px;font-weight:700;color:#f1f5f9}
+.ch-bar{height:3px;background:#1e2d45;border-radius:2px;margin-top:5px}
+.ch-bar-fill{height:100%;border-radius:2px}
+
+/* LEAD GEN ACCORDION */
+.ld-panel{background:#1a1f2e;border:1px solid #2d3748;border-radius:12px;margin-bottom:14px;overflow:hidden}
+.ld-toggle{width:100%;background:none;border:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:10px;text-align:left;color:#f1f5f9}
+.ld-toggle:hover{background:#1e2740}
+.ld-toggle-title{font-size:14px;font-weight:700;flex:1}
+.ld-toggle-sub{font-size:11px;color:#64748b}
+.ld-arrow{font-size:12px;color:#64748b;transition:transform .25s;flex-shrink:0}
+.ld-panel.open .ld-arrow{transform:rotate(180deg)}
+.ld-body{display:none;padding:0 16px 16px}
+.ld-panel.open .ld-body{display:block}
+.ld-table-wrap{overflow-x:auto;margin-top:8px}
+.ld-table{width:100%;border-collapse:collapse;font-size:12px}
+.ld-table th{background:#0f1420;color:#64748b;padding:7px 10px;border-bottom:1px solid #2d3748;font-weight:600;white-space:nowrap;text-align:right}
+.ld-table th:first-child{text-align:left;min-width:90px}
+.ld-table th.spark-h{text-align:center;min-width:80px}
+.ld-table td{padding:6px 10px;border-bottom:1px solid #131e2e;white-space:nowrap;text-align:right}
+.ld-table td:first-child{text-align:left;font-weight:600}
+.ld-table tr:hover td{background:#151f30;cursor:pointer}
+.ld-table tr.ld-sel td{background:#1a2f50!important;box-shadow:inset 3px 0 0 #3b82f6}
+.ld-table td.ld-spark{text-align:center;padding:4px 10px}
+.ld-sum{color:#f1f5f9;font-weight:700}
+.ld-avg{color:#94a3b8}
+.ld-pct-up{color:#4ade80;font-weight:700}.ld-pct-dn{color:#f87171;font-weight:700}.ld-pct-neu{color:#64748b}
+.ld-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;align-items:center}
+.ld-filter-btn{background:#1e2433;color:#94a3b8;border:1px solid #334155;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
+.ld-filter-btn:hover{background:#2d3748;color:#e2e8f0}
+.ld-filter-btn.active{background:#1d4ed8;color:#fff;border-color:#3b82f6}
+
+/* WEEK TABLE */
+.wt{width:100%;border-collapse:collapse;font-size:12px}
+.wt th{background:#0f1420;color:#64748b;padding:7px 10px;text-align:center;border-bottom:1px solid #2d3748;font-weight:600;white-space:nowrap}
+.wt th:first-child{text-align:left}
+.wt td{padding:6px 10px;border-bottom:1px solid #1a2035;text-align:center}
+.wt td:first-child{text-align:left;color:#94a3b8;font-weight:600;white-space:nowrap}
+.wt tr:hover td{background:#1a2035}
+.trend-up{color:#4ade80}.trend-dn{color:#f87171}
+
+/* ALERTS */
+.alert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.alert-card{border-radius:10px;padding:14px;border:1px solid #2d3748;background:#0f1420}
+.alert-card.warn{border-color:#92400e;background:#160e02}
+.alert-card.ok{border-color:#065f46;background:#020f0a}
+.alert-card.info{border-color:#1d4ed8;background:#030b1a}
+.alert-title{font-size:13px;font-weight:700;margin-bottom:6px}
+.alert-card.warn .alert-title{color:#f59e0b}
+.alert-card.ok .alert-title{color:#34d399}
+.alert-card.info .alert-title{color:#60a5fa}
+.alert-body{font-size:12px;color:#94a3b8;line-height:1.7}
+.alert-body strong{color:#e2e8f0}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">Boostra</div>
+  <div class="hdr-title">Marketing Analytics Dashboard</div>
+  <div class="hdr-date">Данные по 07.06.2026 &nbsp;·&nbsp; AR вызр. НК 2д / ПК 3д &nbsp;·&nbsp; TR вызр. 7 дней</div>
+</div>
+
+<!-- RUN RATE -->
+<div class="rr-panel">
+  <div class="rr-top">
+    <span class="rr-title">📈 Run Rate выдач — июнь 2026</span>
+    <span class="rr-plan-lbl">План: <strong style="color:#f1f5f9">2 185 млн ₽</strong></span>
+    <div class="rr-bar-wrap">
+      <div class="rr-bar-fact" id="rrBarFact"><span id="rrBarLbl"></span></div>
+      <div class="rr-bar-tgt" id="rrBarTgt">
+        <div class="rr-bar-tgt-lbl" id="rrBarTgtLbl"></div>
+      </div>
+    </div>
+    <span class="rr-pct" id="rrPct"></span>
+  </div>
+  <div class="rr-cards" id="rrCards"></div>
+  <div class="rr-prods" id="rrProds"></div>
+</div>
+
+<!-- TOP 2-DAY TABLE -->
+<div class="d2d-panel">
+  <div class="d2d-hdr">
+    <span class="d2d-title">⚡ Динамика последних 2 дней</span>
+    <span class="d2d-dates" id="d2dDates"></span>
+    <span class="d2d-note">🔬 * — прогноз зрелого значения с поправкой на вызревание</span>
+  </div>
+  <div class="d2d-table-wrap">
+    <table class="d2d-table">
+      <thead><tr>
+        <th>Метрика</th><th class="num" id="th1">Вчера</th><th class="num" id="th2">Сегодня</th><th class="num">Δ</th>
+      </tr></thead>
+      <tbody id="d2dBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="wrap">
+
+<div class="cmp-panel">
+  <div class="cmp-hdr">📊 Сравнение периодов</div>
+  <div class="cmp-periods">
+    <div class="cmp-period a"><div class="cmp-period-label">Период A</div>
+      <div class="cmp-row"><label>с</label><select id="aFrom"></select><label>по</label><select id="aTo"></select></div></div>
+    <div class="cmp-period b"><div class="cmp-period-label">Период B</div>
+      <div class="cmp-row"><label>с</label><select id="bFrom"></select><label>по</label><select id="bTo"></select></div></div>
+  </div>
+  <div class="cmp-presets">
+    <span style="font-size:11px;color:#64748b">Быстро:</span>
+    <button class="preset-btn" data-preset="7">7 дней</button>
+    <button class="preset-btn" data-preset="14">14 дней</button>
+    <button class="preset-btn" data-preset="30">30 дней</button>
+    <button class="preset-btn" data-preset="may">Май</button>
+    <button class="preset-btn" data-preset="apr">Апрель</button>
+    <button class="preset-btn active" data-preset="pre_post">До/После 27.05</button>
+    <button class="cmp-run" onclick="runCmp()">Сравнить →</button>
+  </div>
+  <div id="cmpResult">
+    <div class="cmp-table-wrap">
+      <table class="cmp-table">
+        <thead><tr><th>Метрика</th><th class="val-a" id="thA">Период A</th><th class="val-b" id="thB">Период B</th><th>Δ A→B</th></tr></thead>
+        <tbody id="cmpBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">🔬 Вызревание AR (Approve Rate) и TR (Take Rate) — по 4 снэпшотам</div>
+  <div class="mat-section">
+    <div class="mat-chart"><div class="mat-chart-title">AR (Новый клиент): вызревание</div><div id="nkMatChart" style="width:100%;height:130px"></div></div>
+    <div class="mat-chart"><div class="mat-chart-title">AR (Повторный клиент): вызревание</div><div id="pkMatChart" style="width:100%;height:130px"></div></div>
+    <div class="mat-chart"><div class="mat-chart-title">TR (Автозаявки): вызревание — 7 дней</div><div id="azTrMatChart" style="width:100%;height:130px"></div></div>
+    <div class="mat-chart"><div class="mat-chart-title">TR (Кроссы): вызревание — 7 дней</div><div id="crTrMatChart" style="width:100%;height:130px"></div></div>
+  </div>
+  <div style="margin-top:10px;font-size:12px;color:#64748b;line-height:1.9">
+    <strong style="color:#3b82f6">AR НК</strong>: д0=47%→д1=85%→<strong style="color:#4ade80">д2=97%✓</strong>&nbsp;&nbsp;
+    <strong style="color:#10b981">AR ПК</strong>: д0=44%→д1=82%→д2=89%→<strong style="color:#4ade80">д3=95%✓</strong>&nbsp;&nbsp;
+    <strong style="color:#a78bfa">TR НК/ПК</strong>: д1≈97%→д2≈99% (быстрое)&nbsp;&nbsp;
+    <strong style="color:#a78bfa">TR АЗ</strong>: д1=49%→д3=77%→<strong style="color:#4ade80">д7≈96%✓</strong>&nbsp;&nbsp;
+    <strong style="color:#f59e0b">TR Кроссы</strong>: д1=52%→д3=74%→<strong style="color:#4ade80">д7≈95%✓</strong>
+  </div>
+</div>
+
+<div class="sections-grid">
+
+<div class="section">
+  <div class="sec-title"><span class="dot dot-nk"></span>НК — Новый клиент</div>
+  <div class="chart-area" id="nkARChart"></div>
+  <div class="chart-legend"><span style="color:#3b82f6">— AR raw</span>&nbsp;<span style="color:#93c5fd">- - AR* прогноз</span></div>
+  <div id="nkMatInfo" class="mat-info"><div class="mat-info-title">📊 AR* и TR* с поправкой на вызревание:</div><div id="nkMatRows"></div></div>
+  <div style="margin-top:10px"><div class="chart-area" id="nkZChart"></div>
+  <div class="chart-legend">— Заявки&nbsp;— Одобрения×10&nbsp;— Выдачи÷10000</div></div>
+</div>
+
+<div class="section">
+  <div class="sec-title"><span class="dot dot-pk"></span>ПК — Повторный клиент</div>
+  <div class="chart-area" id="pkARChart"></div>
+  <div class="chart-legend"><span style="color:#10b981">— AR raw</span>&nbsp;<span style="color:#6ee7b7">- - AR* прогноз</span></div>
+  <div id="pkMatInfo" class="mat-info"><div class="mat-info-title">📊 AR* и TR* с поправкой на вызревание:</div><div id="pkMatRows"></div></div>
+  <div style="margin-top:10px"><div class="chart-area" id="pkZChart"></div>
+  <div class="chart-legend">— Заявки</div></div>
+</div>
+
+<div class="section">
+  <div class="sec-title"><span class="dot dot-az"></span>Автозаявки</div>
+  <div class="chart-area" id="azChart"></div>
+  <div class="chart-legend">— Закрытий&nbsp;— Заявки АЗ&nbsp;— AR%×10</div>
+  <div id="azMatInfo" class="mat-info"><div class="mat-info-title">📊 TR* Take Rate с поправкой на вызревание (7 дней):</div><div id="azMatRows"></div></div>
+</div>
+
+<div class="section">
+  <div class="sec-title"><span class="dot dot-cr"></span>Кроссы</div>
+  <div class="chart-area" id="crChart"></div>
+  <div class="chart-legend">— Всего&nbsp;— НК кросс&nbsp;— ПК кросс</div>
+  <div id="crMatInfo" class="mat-info"><div class="mat-info-title">📊 TR* Take Rate с поправкой на вызревание (7 дней):</div><div id="crMatRows"></div></div>
+</div>
+
+</div>
+
+<div class="section">
+  <div class="sec-title"><span class="dot dot-nk"></span>Новый клиент — заявки по каналам (ср. 7 дней)</div>
+  <div class="ch-grid" id="nkChGrid"></div>
+</div>
+
+<div class="ld-panel" id="ldPanel">
+  <button class="ld-toggle" onclick="toggleLd()">
+    <span style="font-size:16px">📡</span>
+    <span class="ld-toggle-title">Динамика заявок по лидогенераторам</span>
+    <span class="ld-toggle-sub" id="ldSub">НК · 10 каналов</span>
+    <span class="ld-arrow">▼</span>
+  </button>
+  <div class="ld-body">
+    <div class="ld-filters">
+      <span style="font-size:11px;color:#64748b;margin-right:4px">Период:</span>
+      <button class="ld-filter-btn" data-ld="7" onclick="setLdPeriod(this)">7 дней</button>
+      <button class="ld-filter-btn active" data-ld="14" onclick="setLdPeriod(this)">14 дней</button>
+      <button class="ld-filter-btn" data-ld="30" onclick="setLdPeriod(this)">30 дней</button>
+    </div>
+    <div class="ld-table-wrap">
+      <table class="ld-table">
+        <thead id="ldHead"></thead>
+        <tbody id="ldBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">📋 Сводная таблица по неделям</div>
+  <div style="overflow-x:auto"><table class="wt" id="summTable"></table></div>
+</div>
+
+<div class="section">
+  <div class="sec-title">🔔 Выводы и алерты</div>
+  <div class="alert-grid" id="alertGrid"></div>
+</div>
+
+</div>
+
+<script src="dashboard.js"></script>
+</body>
+</html>
