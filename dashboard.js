@@ -436,7 +436,8 @@ drawAll();
     {label:'29.04–05.05',s:28,e:34},{label:'06–12.05',s:35,e:41},
     {label:'13–19.05',s:42,e:48},{label:'20–26.05',s:49,e:55},
     {label:'27.05–02.06',s:56,e:62,note:'▲НК порог'},
-    {label:'03–07.06',s:63,e:67,note:'≈незр.TR'},
+    {label:'03–09.06',s:63,e:69},
+    {label:'10.06',s:70,e:70,note:'неполн.'},
   ];
   var t=document.getElementById('summTable');
   var h='<thead><tr><th>Неделя</th><th>НК Заявки</th><th>НК AR*</th><th>НК TR*</th><th>ПК Заявки</th><th>ПК TR*</th><th>АЗ TR*</th><th>CR TR*</th><th>Выдачи ГК</th></tr></thead><tbody>';
@@ -458,10 +459,11 @@ drawAll();
 
 /* ALERTS */
 (function(){
-  var crNK_may=avg(crNK,49,55),crNK_post=avg(crNK,56,60);
-  var nkAR_may=avg(nkARc,49,55),nkAR_post=avg(nkARc,56,60);
-  var pkAR_may=avg(pkARc,49,55),pkAR_post=avg(pkARc,56,60);
-  var azTR_may=avg(azTRc,49,55),azTR_post=avg(azTRc,56,60);
+  var crNK_may=avg(crNK,49,55),crNK_jun1=avg(crNK,56,62),crNK_jun2=avg(crNK,63,69);
+  var nkAR_may=avg(nkARc,49,55),nkAR_jun1=avg(nkARc,56,62),nkAR_jun2=avg(nkARc,63,69);
+  var pkAR_may=avg(pkARc,49,55),pkAR_jun1=avg(pkARc,56,62),pkAR_jun2=avg(pkARc,63,69);
+  var azTR_may=avg(azTRc,49,55),azTR_jun1=avg(azTRc,56,62),azTR_jun2_mat=avg(azTRc,63,66);
+  var crTR_may=avg(crTRc,49,55),crTR_jun2_mat=avg(crTRc,63,66);
   var factTot=0;for(var i=JUN_START;i<N;i++)factTot+=vydTotal[i];
   var junDays=N-JUN_START,projected=factTot/junDays*DAYS_IN_JUN;
   document.getElementById('alertGrid').innerHTML=[
@@ -469,20 +471,24 @@ drawAll();
       'Факт июня ('+junDays+' дн.): <strong>'+rubM(factTot)+'</strong>, ср/д '+rubM(factTot/junDays)+'. '
       +'Прогноз месяца: <strong>'+rubM(projected)+'</strong>. '
       +'Нужно в день: <strong>'+rubM((PLAN-factTot)/(DAYS_IN_JUN-junDays))+'</strong> vs текущих '+rubM(factTot/junDays)+'.'},
-    {type:'info',title:'🔬 Вызревание: AR НК 2д / ПК 3д · TR все сегменты 7 дней',body:
-      '<strong>AR НК 07.06</strong>: raw '+nkAR[N-1].toFixed(2)+'% → прогноз '+nkARc[N-1].toFixed(1)+'%.<br>'
-      +'<strong>TR АЗ 07.06</strong>: raw '+azTR[N-1].toFixed(1)+'% → прогноз '+azTRc[N-1].toFixed(1)+'% (д.1=49% вызр.).<br>'
-      +'<strong>TR Кроссы 07.06</strong>: raw '+crTR[N-1].toFixed(1)+'% → прогноз '+crTRc[N-1].toFixed(1)+'% (д.1=52% вызр.).'},
-    {type:'warn',title:'⚠ Новый клиент AR: реальное падение после 27.05',body:
-      'Зрелые 20–26.05: <strong>'+nkAR_may.toFixed(1)+'%</strong> → 27.05–02.06: <strong>'+nkAR_post.toFixed(1)+'%</strong> ('+(delta(nkAR_may,nkAR_post)).toFixed(0)+'%). '
-      +'Причина: скор-порог 500→600/700. Начало июня: восстановление.'},
-    {type:'warn',title:'⚠ АЗ и Кроссы TR: падение после 27.05',body:
-      'АЗ TR зрелый: 20–26.05: <strong>'+azTR_may.toFixed(1)+'%</strong> → после 27.05: <strong>'+azTR_post.toFixed(1)+'%</strong>. '
-      +'Связано с ужесточением НК скор-порога.'},
-    {type:'warn',title:'⚠ Кроссы НК: -'+Math.abs(delta(crNK_may,crNK_post)).toFixed(0)+'% после 27.05',body:
-      'Ср. 20–26.05: '+Math.round(crNK_may)+' шт/д → после 27.05: '+Math.round(crNK_post)+' шт/д.'},
-    {type:'ok',title:'✓ Повторный клиент AR: частично сезонное',body:
-      'Зрелые: '+pkAR_may.toFixed(1)+'% → '+pkAR_post.toFixed(1)+'%. Прогноз 07.06: '+pkARc[N-1].toFixed(1)+'% — близко к норме.'},
+    {type:'info',title:'🔬 Вызревание на '+dates_s[N-1]+': AR НК 2д / ПК 3д · TR все сегменты 7 дней',body:
+      '<strong>AR НК</strong>: raw '+nkAR[N-1].toFixed(2)+'% → прогноз '+nkARc[N-1].toFixed(1)+'% (д.1 = 47% вызр.).<br>'
+      +'<strong>AR ПК</strong>: raw '+pkAR[N-1].toFixed(2)+'% → прогноз '+pkARc[N-1].toFixed(1)+'% (д.1 = 44% вызр.).<br>'
+      +'<strong>TR АЗ</strong>: raw '+azTR[N-1].toFixed(1)+'% → прогноз '+azTRc[N-1].toFixed(1)+'% (д.1 = 49% вызр.).<br>'
+      +'<strong>TR Кроссы</strong>: raw '+crTR[N-1].toFixed(1)+'% → прогноз '+crTRc[N-1].toFixed(1)+'% (д.1 = 52% вызр.).<br>'
+      +'<em style="color:#64748b;font-size:11px">Зрелые (04–06.06): АЗ TR '+azTR_jun2_mat.toFixed(1)+'%, CR TR '+crTR_jun2_mat.toFixed(1)+'% — структурное падение подтверждено.</em>'},
+    {type:'ok',title:'✓ Новый клиент AR: восстановление в 03–09.06',body:
+      'Май (20–26.05): <strong>'+nkAR_may.toFixed(1)+'%</strong> → просадка 27.05–02.06: <strong>'+nkAR_jun1.toFixed(1)+'%</strong> → 03–09.06: <strong>'+nkAR_jun2.toFixed(1)+'%</strong>. '
+      +'AR вернулся к майским уровням после корректировки скор-порога.'},
+    {type:'warn',title:'⚠ АЗ Take Rate: структурный обвал продолжается',body:
+      'Зрелый TR АЗ: май '+azTR_may.toFixed(1)+'% → 27.05–02.06: '+azTR_jun1.toFixed(1)+'% → зрелые 04–06.06: <strong>'+azTR_jun2_mat.toFixed(1)+'%</strong>. '
+      +'Падение ~'+Math.abs(delta(azTR_may,azTR_jun2_mat)).toFixed(0)+'% от мая. Не вызревание — реальное снижение конверсии в выдачу.'},
+    {type:'warn',title:'⚠ Кроссы TR: та же картина',body:
+      'Зрелый TR Кроссов: май '+crTR_may.toFixed(1)+'% → зрелые 04–06.06: <strong>'+crTR_jun2_mat.toFixed(1)+'%</strong>. '
+      +'Кроссы НК: май '+Math.round(crNK_may)+' шт/д → 03–09.06: <strong>'+Math.round(crNK_jun2)+' шт/д</strong> (-'+Math.abs(delta(crNK_may,crNK_jun2)).toFixed(0)+'%).'},
+    {type:'warn',title:'⚠ НК заявки: объём не восстановился',body:
+      'Май (20–26.05): <strong>'+Math.round(avg(nkZ,49,55))+' шт/д</strong> → 27.05–02.06: '+Math.round(avg(nkZ,56,62))+'/д → 03–09.06: <strong>'+Math.round(avg(nkZ,63,69))+' шт/д</strong>. '
+      +'ПК AR: май '+pkAR_may.toFixed(1)+'% → 03–09.06: '+pkAR_jun2.toFixed(1)+'% (плавное снижение).'},
   ].map(function(a){return '<div class="alert-card '+a.type+'"><div class="alert-title">'+a.title+'</div><div class="alert-body">'+a.body+'</div></div>';}).join('');
 })();
 
